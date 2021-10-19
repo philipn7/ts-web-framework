@@ -7,6 +7,8 @@ user.set({ name: 'derp' });
 console.log(user.get('name'));
 console.log(user.get('age'));
 
-user.on('click', () => {});
+user.on('click', () => {
+  console.log('clickey');
+});
 
-console.log(user);
+user.trigger('click');
