@@ -1,37 +1,51 @@
-import axios, { AxiosResponse } from 'axios';
+import { AxiosResponse } from 'axios';
+import { Eventing } from './Eventing';
+import { Sync } from './Sync';
+import { Attributes } from './Attributes';
 
-interface UserProps {
+export interface UserProps {
   id?: number;
   name?: string;
   age?: number;
 }
 
-export class User {
-  constructor(public data: UserProps) {}
+const rootUrl = 'http://localhost:3000/users';
 
-  get(prop: string): number | string {
-    return this.data[prop];
+export class User {
+  public events: Eventing = new Eventing();
+  public sync: Sync<UserProps> = new Sync<UserProps>(rootUrl);
+  public attributes: Attributes<UserProps>;
+
+  constructor(attrs: UserProps) {
+    this.attributes = new Attributes<UserProps>(attrs);
+  }
+
+  get on() {
+    return this.events.on;
+  }
+
+  get trigger() {
+    return this.events.trigger;
+  }
+
+  get get() {
+    return this.attributes.get;
   }
 
   set(update: UserProps): void {
-    Object.assign(this.data, update);
+    this.attributes.set(update);
+    this.events.trigger('change');
   }
 
   fetch(): void {
-    axios
-      .get(`http://localhost:3000/users/${this.get('id')}`)
-      .then((response: AxiosResponse): void => {
-        this.set(response.data);
-      });
-  }
+    const id = this.attributes.get('id');
 
-  save(): void {
-    const id = this.get('id');
-
-    if (id) {
-      axios.put(`http://localhost:3000/users/${id}`, this.data);
-    } else {
-      axios.post('http://localhost:3000/users', this.data);
+    if (typeof id !== 'number') {
+      throw new Error('Cannot fetch without an id');
     }
+
+    this.sync.fetch(id).then((response: AxiosResponse): void => {
+      this.set(response.data);
+    });
   }
 }
