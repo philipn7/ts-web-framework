@@ -85,7 +85,7 @@ get<K extends keyof T>(key: K): T[K] {
 `<K extends keyof T>` is the generic constraint that defines K as the key values in our interface definition. (All key values in JavaScript are strings.)
 `T[K]` gives us the type of the value in the key/value pair from the interface.
 
-# Using the Extracted Classes
+## Using the Extracted Classes
 How do we use the classes now that they're extracted out? We could call the methods directly so that `user.set()` now becomes `user.attributes.set()`. This will get messy quick.
 
 We can take advantage of Accessors. Previously, we used `get name()` to turn calling a method `foo.name()` to property `foo.name`. Likewise, we can return functions instead.
@@ -104,3 +104,18 @@ However, when using `User.get()` we get an error that the property we are lookin
 
 **The whole point is to have those methods 'pass through' directly to the parent class.**
 
+# View
+Wrapped up the model portion of our app. Develop the view which is tightly coupled to the model.
+![](images/Pasted%20image%2020211025154219.png)
+
+## Events Listener tied to HTML events
+A rudimentary way of handling events from the html page.
+Click, hover, etc. The 'UserForm' class generates an html template and appends it to index.html. There are helper functions which parse the template and binds events such as button clicks. The event listener implemented earlier is also used to update the html page on changes to the model.
+
+## Common errors involving TS
+- Undefined when using a reference to `this.` from another object. Are you sure `this.` refers to what you think it does? Use the arrow function definition to bound `this` function.
+- Null. Object is possibly null. Strict TS will check for null objects. Use a guard (if statement) to check that the object exists first.
+
+## Example where Composition is not the best choice
+![](images/Pasted%20image%2020211026103427.png)
+Bi-directional relationship is required to make this composition work. why is this bi-directional relationship not desirable though?
